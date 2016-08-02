@@ -1,6 +1,7 @@
 
 var express = require('express')
-app = require('./api');
+var app = express();
+//app = require('./api');
 var http = require('http')
 var server = require('http').Server(app);
 var port = process.env.PORT || 3001;
