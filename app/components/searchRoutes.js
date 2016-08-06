@@ -34,7 +34,7 @@ class SearchRoutes extends Component {
           onChangeText={(text) => this.setState({search: text})}
         />
 
-        <View style={{paddingTop: 15}}>
+        <View style={{paddingTop: 10}}>
           <ListView
             dataSource={this.state.dataSource}
             renderRow={(rowData) => <Text>{rowData}</Text>}
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   navBar: {
     backgroundColor: 'grey',
     height: 50,
-    top: 40,
+    top: 15,
     paddingTop: 50
   },
   buttonText: {
