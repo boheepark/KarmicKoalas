@@ -26,7 +26,7 @@ class SearchRoutes extends Component {
   render() {
     return (
       <View style={styles.navBar}>
-                <TextInput
+        <TextInput
           style={{height: 70}}
           autoFocus = {true}
           value={this.state.search}
@@ -34,16 +34,14 @@ class SearchRoutes extends Component {
           onChangeText={(text) => this.setState({search: text})}
         />
 
-        <View style={{paddingTop: 22}}>
+        <View style={{paddingTop: 15}}>
           <ListView
             dataSource={this.state.dataSource}
             renderRow={(rowData) => <Text>{rowData}</Text>}
           />
           </View>
          <View style={styles.button}>
-          <Text>
-          Add To My Routes
-        </Text>
+          <Text>Add To My Routes</Text>
         </View>
       </View>
       );
