@@ -1,15 +1,15 @@
 import React, { Component } from 'react'
-import { View, StyleSheet, NavigatorIOS, Text, ListView, TextInput, TouchableHighlight } from 'react-native';
+import { View, StyleSheet, NavigatorIOS, Text, ListView, TextInput, TouchableHighlight, TouchableOpacity } from 'react-native';
 
 let routes = [
-  {name: 'New York Historic'},
-  {name: 'Metropolitan Boston'},
-  {name: 'Fossil Treck in NJ'},
-  {name: 'Hudson River Walk'},
-  {name: 'Central Park NYC'},
-  {name: 'Bear Mountain Hike Easy'},
-  {name: 'NYC Midtown Pub Crawl'},
-  {name: 'Lower East Side NYC Historic'}
+  'New York Historic',
+  'Metropolitan Boston',
+  'Fossil Treck in NJ',
+  'Hudson River Walk',
+  'Central Park NYC',
+  'Bear Mountain Hike Easy',
+  'NYC Midtown Pub Crawl',
+  'Lower East Side NYC Historic'
 ]
 
 class SearchRoutes extends Component {
@@ -18,27 +18,36 @@ class SearchRoutes extends Component {
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = {
       search: '',
-      dataSource: ds.cloneWithRows([
-        'New York Historic', 'Metropolitan Boston', 'Fossil Treck in NJ', 'Hudson River Walk', 'Central Park NYC', 'Bear Mountain Hike Easy', 'NYC Midtown Pub Crawl', 'Lower East Side NYC Historic'
-      ])
+      dataSource: ds.cloneWithRows(routes)
     };
+  }
+  showData(item) {
+    console.log("Route: ", item);
+  }
+
+  renderRow(route) {
+    return (
+      <TouchableOpacity onPress={(event) => this.showData(route)}>
+      <View>
+        <Text>{'\n'}{route}{'\n'}</Text>
+        <View style={{height: 1, backgroundColor: '#dddddd' }} />
+      </View>
+      </TouchableOpacity>
+    );
   }
   render() {
     return (
       <View style={styles.navBar}>
         <TextInput
-          style={{height: 70}}
+          style={{height: 40}}
           autoFocus = {true}
           value={this.state.search}
           placeholder="Enter keywords: "
-          onChangeText={(text) => this.setState({search: text})}
-        />
-
-        <View style={{paddingTop: 10}}>
+          onChangeText={(text) => this.setState({search: text})}/>
+        <View style={{paddingTop: 2}}>
           <ListView
             dataSource={this.state.dataSource}
-            renderRow={(rowData) => <Text>{rowData}</Text>}
-          />
+            renderRow={(route) => { return this.renderRow(route) }}/>
           </View>
          <View style={styles.button}>
           <Text>Add To My Routes</Text>
@@ -55,7 +64,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'white'
   },
   navBar: {
-    backgroundColor: 'grey',
     height: 50,
     top: 15,
     paddingTop: 50
@@ -68,7 +76,7 @@ const styles = StyleSheet.create({
   button: {
     height: 20,
     flexDirection: 'row',
-    backgroundColor: '#48BBEC',
+    backgroundColor: 'white',
     alignSelf: 'stretch',
     justifyContent: 'center'
   }
