@@ -26,8 +26,8 @@ class SearchRoutes extends Component {
   render() {
     return (
       <View style={styles.navBar}>
-        <TextInput
-          style={{height: 40}}
+                <TextInput
+          style={{height: 70}}
           autoFocus = {true}
           value={this.state.search}
           placeholder="Enter keywords: "
@@ -58,12 +58,9 @@ const styles = StyleSheet.create({
   },
   navBar: {
     backgroundColor: 'grey',
-    height: 64,
+    height: 50,
     top: 40,
-    paddingTop: 50,
-    bottom: 0,
-    left: 0,
-    right: 0
+    paddingTop: 50
   },
   buttonText: {
     fontSize: 18,
