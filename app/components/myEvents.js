@@ -57,7 +57,7 @@ class myEvents extends Component {
         key={`${sectionID}-${rowID}`}
         style={{
           height: adjacentRowHighlighted ? 4 : 1,
-          backgroundColor: adjacentRowHighlighted ? '#B2B0B2' : '#073AD2',
+          backgroundColor: adjacentRowHighlighted ? '#E0DFDF' : '#073AD2',
         }}
       />
     );

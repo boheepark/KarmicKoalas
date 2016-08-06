@@ -125,10 +125,6 @@ const styles = StyleSheet.create({
     },
     buttonText: {
       fontSize: 20,
-      color: 'white'
-    },
-    buttonText: {
-      fontSize: 18,
       color: 'white',
       alignSelf: 'center'
     },
