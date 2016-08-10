@@ -4,7 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const User = require('./db/models/user');
-const Keyword = require('./db/models/Keyword');
+const Keyword = require('./db/models/keyword');
 const Route = require('./db/models/route');
 const keyword_route = require('./db/models/keyword_route');
 const Event = require('./db/models/event');
