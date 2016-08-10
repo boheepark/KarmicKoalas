@@ -11,9 +11,9 @@ class Splash extends Component {
     this.state = {
 
     }
-		
+
     //AsyncStorage.setItem("userId", 'null');
-    AsyncStorage.getItem("userId").then((value) => {
+    AsyncStorage.getItem("username").then((value) => {
       if(value === null){
         //new user
 				this.props.navigator.push({
