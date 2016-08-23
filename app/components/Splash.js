@@ -1,9 +1,11 @@
 'use strict'
 
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, TouchableHighlight, TextInput, AlertIOS, AsyncStorage } from 'react-native';
+import { StyleSheet, View, Text, Image, TouchableHighlight, TextInput, AlertIOS, AsyncStorage } from 'react-native';
 import SignUp from './SignUp'
 import Main from './Main'
+import About from './About'
+import icon from '../icons/weGoToo_logo.png'
 
 class Splash extends Component {
 	constructor(props) {
@@ -21,10 +23,12 @@ class Splash extends Component {
 				this.props.navigator.push({
 					navigationBarHidden: true,
 					component: SignUp,
-					title: "SignUp"
+					title: ""
 				});
       } else {
-				this.props.navigator.resetTo({
+				var that = this
+				setTimeout(function() {
+				that.props.navigator.resetTo({
 					navigationBarHidden: true,
 					component: Main,
 					title: "Main",
@@ -32,7 +36,9 @@ class Splash extends Component {
 		        userId: +data[1][1],
 						username: data[0][1]
 		      }
-				});
+				})
+				// do something in 0 ms
+			}, 3500)
     	}
   	});
 	}
@@ -40,9 +46,7 @@ class Splash extends Component {
   render() {
 		return (
       <View style={styles.container}>
-				<Text style={styles.textHeader}>
-					WeGoToo>>>>>
-				</Text>
+		 	<Image source={icon} style={styles.image}/>
 			</View>
 			)
 	}
@@ -53,14 +57,12 @@ const styles = StyleSheet.create({
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: 'cornflowerblue'
+      backgroundColor: '#fff'
     },
-    text: {
-      color: 'blue',
-      backgroundColor: 'lightblue',
-      fontSize: 30,
-      margin: 80
-    }
+		image: {
+			height:200,
+			width:230
+		}
 });
 
 module.exports =  Splash;

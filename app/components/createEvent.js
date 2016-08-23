@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
 import { View, ListView, StyleSheet, NavigatorIOS, Dimensions, Text, AlertIOS, TextInput, TouchableHighlight, TouchableOpacity, DatePickerIOS } from 'react-native';
 
-import Contacts from 'react-native-contacts';
-
+import Icon from 'react-native-vector-icons/FontAwesome';
 import myEvents from './myEvents';
 
 const { width, height } = Dimensions.get('window');
@@ -11,10 +10,10 @@ class createEvent extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      id: this.props.id,
+      id: props.id,
       title: "",
-      route: this.props.route,
-      keyWords: this.props.keyWords,
+      route: props.route,
+      keyWords: props.keyWords,
       guests: "",
       contact_suggestions: [],
       contacts: [],
@@ -27,7 +26,7 @@ class createEvent extends Component {
   }
 
   componentDidMount(){
-    fetch("http://localhost:8000/getAllUsers", {
+    fetch("https://wegotoo.herokuapp.com/getAllUsers", {
       method: "GET",
       headers: {'Content-Type': 'application/json'},
     }).then((response) => response.json()).then(responseData => {
@@ -88,19 +87,19 @@ class createEvent extends Component {
           }
         });
       });
-      var body = {
+      var data = {
         title: this.state.title,
         host: this.props.userId,
         guests: guestIds,
         route_id: this.props.routeID,
         time: this.state.date
       }
-      console.log('Data to the server', body.guests);
-      fetch("http://localhost:8000/createEvent", {
+      //console.log('Data to the server', data.guests);
+      fetch("https://wegotoo.herokuapp.com/createEvent", {
         method: "POST",
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-      }).then((responseData) => {
+        body: JSON.stringify(data)
+      }).then((response) => response.json()).then((responseData) => {
         console.log('createEvent -- SERVER', responseData)
         //this.setState({routeCoordinates: responseData});
         this.props.navigator.push({
@@ -130,7 +129,7 @@ class createEvent extends Component {
           onSubmitEditing={(event) => {
             this.refs.guestsInput.focus();
           }} />
-        <Text>Invite your friends</Text>
+        <Text style={styles.Invite}>Invite your friends</Text>
         <TextInput
           ref="guestsInput"
           style={styles.inputText}
@@ -140,18 +139,19 @@ class createEvent extends Component {
         {
           this.state.contact_suggestions.map((contact, idx) => (
             <TouchableOpacity key={idx} onPress={(event) => this.addContact(contact)}>
-              <Text>{contact}</Text>
+              <Text style={styles.contacts}>{contact}</Text>
             </TouchableOpacity>
           ))
         }
-        <Text>DateTime</Text>
+        <Text style={styles.dateTime}>DateTime</Text>
         <DatePickerIOS
+        style={styles.datePicker}
           date={this.state.date}
           mode="datetime"
           timeZoneOffsetInMinutes={this.state.timeZoneOffsetInHours * 60}
           onDateChange={this.onDateChange} />
-        <TouchableHighlight onPress={() => this.handleSubmit()} style={styles.button}>
-          <Text style={styles.buttonText}>Submit</Text>
+        <TouchableHighlight  style={styles.sendBtn} onPress={() => this.handleSubmit()}>
+          <Text><Icon name="rocket" size={30} color="#3498db" /></Text>
         </TouchableHighlight>
       </View>
     );
@@ -163,28 +163,54 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     // alignItems: 'center',
-    backgroundColor: '#F5FCFF'
+    backgroundColor: '#eee'
+  },
+  contacts:{
+    fontSize: 16,
+    zIndex:2,
+    left:10
+  },
+  datePicker:{
+    zIndex:-1,
+    top:50,
+  },
+  Invite:{
+    fontSize: 18,
+    top:0,
+    left:120
+  },
+  dateTime:{
+    fontSize: 18,
+    top:50,
+    left:148
+  },
+  sendBtn: {
+    flex: 1,
+    bottom: 20,
+    left: 155,
+    width:60,
+    height:60,
+    position: 'absolute',
+    backgroundColor: '#fff',
+    borderColor: "#3498db",
+    borderWidth: 1,
+    paddingHorizontal: 13,
+    paddingVertical: 13,
+    borderRadius: 50
   },
   title: {
-    marginTop: 80
-  },
-  buttonText: {
-    fontSize: 18,
-    color: 'green',
-    alignSelf: 'center'
-  },
-  button: {
-    height: 44,
-    flexDirection: 'row',
-    backgroundColor: '#48BBEC',
-    alignSelf: 'stretch',
-    justifyContent: 'center'
+    marginTop: 80,
+    left:160,
+    fontSize: 18
   },
   inputText: {
+    margin: 10,
     height: 40,
-    width: width,
+    width: width -15,
     backgroundColor: '#fff',
     paddingHorizontal: 18,
+    borderColor: "#ccc",
+    borderWidth: 1,
     borderRadius: 20,
   },
 });

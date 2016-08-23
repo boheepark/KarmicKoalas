@@ -4,14 +4,14 @@ var http = require("https");
 
 // var start = 40.8534229,-73.9793236
 // var end = 40.7466059,-73.9885128
-const getRoute = (start,end, cb)=>{
+const getRoute = (start, end, cb)=>{
       // start.toString();
       // end.toString();
       var options = {
             "method": "GET",
             "hostname": "maps.googleapis.com",
             "port": null,
-            "path": "/maps/api/directions/json?origin=" + start + "&destination=" + end + "&mode=walking&key=AIzaSyDPR_rluVMdgqvM4JBorRSJa3Q2Mo_rUXU",
+            "path": "/maps/api/directions/json?origin=" + start + "&destination=" + end + "&mode=walking&key=" + process.env.GOOGLE_MAPS_API ,
             "headers": {
               "cache-control": "no-cache",
               "postman-token": "2a345e43-8982-8909-5e33-b51770a63de2"

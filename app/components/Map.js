@@ -5,7 +5,7 @@ import { StyleSheet, View, Text, TextInput, Dimensions, StatusBarIOS, TouchableH
 import MapView from 'react-native-maps';
 import haversine from 'haversine'
 import pick from 'lodash/pick'
-
+import Icon from 'react-native-vector-icons/FontAwesome';
 const { width, height } = Dimensions.get('window')
 
 class MapComponent extends Component {
@@ -14,16 +14,11 @@ class MapComponent extends Component {
     super(props);
 
     this.state = {
-      routeCoordinates: this.props.routeCoordinates,
+      routeCoordinates: [],
       distanceTravelled: 0,
       prevLatLng: {},
       users: [],
-      region: {
-        latitude: 0,
-        longitude: 0,
-        latitudeDelta: 0.020300188024080512,
-        longitudeDelta: 0.016093256407543777
-      },
+      region: this.props.start,
       toggle: false,
       test: [{title: "TEST", latitude: 37.55992988, longitude: -122.3826562}],
       route: [{latitude: 37.33756603, longitude: -122.02681114}, {latitude: 37.34756603, longitude: -122.02581114}],
@@ -33,8 +28,10 @@ class MapComponent extends Component {
   }
 
   componentDidMount() {
-  //  console.log('MAP EVENT', this.props.event)
     //  this.playEvent(this.props.eventId);
+      // this.setState({
+      //     region: this.props.start
+      //  })
       navigator.geolocation.getCurrentPosition(
         (position) => {
           console.log("CURRENT POSITION", position);
@@ -49,6 +46,7 @@ class MapComponent extends Component {
       this.watchID = navigator.geolocation.watchPosition(
         (position) => {
         console.log(position);
+        console.log('PIN START', this.props.pinStart)
         const { routeCoordinates, distanceTravelled } = this.state
         const newLatLngs = {latitude: position.coords.latitude, longitude: position.coords.longitude }
         const positionLatLngs = pick(position.coords, ['latitude', 'longitude'])
@@ -73,7 +71,7 @@ class MapComponent extends Component {
         console.log('Users!!!', this.state.users);
       },
       (error) => alert(error.message),
-      {maximumAge: 1000, timeout: 200000000, enableHighAccuracy: true}
+      {maximumAge: 1000, timeout: 20000, enableHighAccuracy: true}
     );
   }
 
@@ -85,17 +83,18 @@ class MapComponent extends Component {
      const { prevLatLng } = this.state
      return (haversine(prevLatLng, newLatLng) || 0)
   }
-  // playEvent(eventId){
-  //   console.log('Event ID', eventId);
-  //    fetch("http://localhost:8000/getRouteById", {method: "POST", headers: {'Content-Type': 'application/json'} ,body: JSON.stringify({event_id: eventId})})
-  //    .then((response) => response.json())
-  //    .then((responseData) => {
-  //      console.log('SERVER', responseData);
-  //      this.setState({routeCoordinates: JSON.parse(responseData.route_object)});
-  //      this.props.initializesEvent(eventId)
-  //    })
-  //    .done();
-  //  }
+  saveRoute(route) {
+    // {title:string, keywords:[],start:{}, end:{}, routeObject:[]}
+      console.log('Route to save', route);
+      fetch("https://wegotoo.herokuapp.com/createRoute", {
+        method: "POST",
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({title:'Saved Route', keywords:['saved'], start:route[0], end:route[route.length-1], routeObject:route})
+      }).then((response) => response.json()).then((responseData) => {
+        console.log('SERVER', responseData)
+      })
+      .done();
+   }
   //function update user array for annotations
   updateUsersArray(object){
     var exist = false;
@@ -117,9 +116,7 @@ class MapComponent extends Component {
   }
   onRegionChangeComplete(e) {
     console.log(e);
-    this.setState({
-        region: e
-     })
+    this.props.informParent(e)
   }
 
   render() {
@@ -127,7 +124,7 @@ class MapComponent extends Component {
         <View style={styles.container}>
           <MapView
             style={styles.map}
-            region={this.state.region}
+            region={this.props.start}
             showsUserLocation={true}
             followUserLocation={false}
             onRegionChangeComplete={this.onRegionChangeComplete}
@@ -139,22 +136,43 @@ class MapComponent extends Component {
               coordinate={{latitude: user.latitude, longitude:user.longitude}}
             />
           ))}
+            <MapView.Marker
+              title={'Start'}
+              pinColor={'#3498db'}
+              coordinate={this.props.pinStart}
+            />
+            <MapView.Marker
+              title={'Finish'}
+              pinColor={'#e74c3c'}
+              coordinate={this.props.pinEnd}
+            />
           <MapView.Polyline
            coordinates={this.props.routeCoordinates}
            strokeColor="rgba(0,0,200,0.5)"
            strokeWidth={3}
            lineDashPattern={[5, 2, 3, 2]}
          />
+         <MapView.Polyline
+          coordinates={this.state.routeCoordinates}
+          strokeColor="rgba(0,0,200,0.5)"
+          strokeWidth={3}
+          lineDashPattern={[5, 2, 3, 2]}
+        />
           </MapView>
+        <TouchableHighlight
+          style={styles.save}
+          onPress={() => {this.saveRoute(this.state.routeCoordinates)}}>
+          <Text><Icon name="floppy-o" size={25} color="#3498db" /></Text>
+        </TouchableHighlight>
         <TouchableHighlight
           style={styles.button}
           onPress={() => {this.setState({routeCoordinates: [], toggle: true})}}>
-          <Text>Route</Text>
+          <Text><Icon name="circle" size={25} color="#e74c3c" /></Text>
         </TouchableHighlight>
         <TouchableHighlight
           style={styles.buttonStop}
           onPress={() => {this.setState({routeCoordinates: [], toggle: false})}}>
-          <Text>Clear</Text>
+          <Text><Icon name="times" size={30} color="#3498db"/></Text>
         </TouchableHighlight>
       </View>
     )
@@ -172,22 +190,45 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    bottom:100,
+    bottom:250,
+    left:20,
+    width:50,
+    height:50,
     position: 'absolute',
     backgroundColor: '#fff',
-    paddingHorizontal: 18,
+    borderColor: "#3498db",
+    borderWidth: 1,
+    paddingHorizontal: 13,
     paddingVertical: 12,
-    borderRadius: 20,
+    borderRadius: 50
+  },
+  save: {
+    flex: 1,
+    bottom:410,
+    left:20,
+    width:50,
+    height:50,
+    position: 'absolute',
+    backgroundColor: '#fff',
+    borderColor: "#3498db",
+    borderWidth: 1,
+    paddingHorizontal: 13,
+    paddingVertical: 12,
+    borderRadius: 50
   },
   buttonStop: {
     flex: 1,
-    bottom:100,
-    left: 150,
+    bottom:330,
+    left:20,
+    width:50,
+    height:50,
     position: 'absolute',
     backgroundColor: '#fff',
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-    borderRadius: 20,
+    borderColor: "#3498db",
+    borderWidth: 1,
+    paddingHorizontal: 12.5,
+    paddingVertical: 8,
+    borderRadius: 50
   },
   map: {
     flex: 1,

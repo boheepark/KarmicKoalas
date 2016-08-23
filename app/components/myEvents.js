@@ -2,13 +2,14 @@
 // My Events Template to render views of user created views.
 
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TouchableHighlight, ScrollView, ListView, TextInput, AlertIOS, AsyncStorage } from 'react-native';
+import { StyleSheet, View, Text, Image, TouchableOpacity, TouchableHighlight, Dimensions, ScrollView, ListView, TextInput, AlertIOS, AsyncStorage } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import Main from './Main';
-
 // Test Data Objects
 //TODO Get request to database for event data.
 
+const { width, height } = Dimensions.get('window')
 let dataSource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
 class myEvents extends Component {
@@ -24,14 +25,22 @@ class myEvents extends Component {
   }
 
   componentDidMount(){
-    fetch("http://localhost:8000/getMyEvents", {
+    fetch("https://wegotoo.herokuapp.com/getMyEvents", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({user_id: this.props.userId})
     }).then((response) => response.json()).then(responseData => {
-      this.setState({
-        objectdataSource: dataSource.cloneWithRows(responseData)
-      });
+      // var data = responseData.filter(event => {
+      //   return new Date(event.time) > new Date();
+      // });
+      if (responseData.message){
+        console.log('You have no current events');
+        AlertIOS.alert("You have no current events");
+      }else {
+        this.setState({
+          objectdataSource: dataSource.cloneWithRows(responseData)
+        })
+      }
     }).done();
   }
 
@@ -45,10 +54,27 @@ class myEvents extends Component {
     highlightedRow: (sectionID: nunber, rowID: number) => void)  {
     return (
       <TouchableOpacity style={styles.eventRow} onPress={() => this.goMap(rowData)}>
-      <View>
-        <Text>{'\n'}{rowData.title}{'\n'}{rowData.time}{'\n'}</Text>
+        <View style={styles.box}>
+          <View style={styles.img}>
+            <Text><Icon name="event" size={25} color="#3498db"/></Text>
+          </View>
+          <View style={styles.text}>
+             <View>
+                 <Text style={styles.titleRow}>{rowData.title}</Text>
+             </View>
+             <View>
+                 <Text style={styles.start}>Start: {rowData.start_address}</Text>
+             </View>
+             <View>
+                 <Text style={styles.start}>End: {rowData.end_address}</Text>
+             </View>
+             <View>
+                 <Text style={styles.time}>{rowData.time}</Text>
+             </View>
+          </View>
+        <View>
         <View />
-      </View>
+      </View></View>
       </TouchableOpacity>
     );
   }
@@ -68,13 +94,13 @@ class myEvents extends Component {
    render() {
     return (
       <View style={styles.container}>
-        <ListView
-          style={{marginTop: 2, alignSelf: 'center', padding: 7}}
+        <ListView style={styles.eventRow}
+          style={{marginTop: 0, alignSelf: 'center', padding: 0}}
           initialListSize={10}
           dataSource={this.state.objectdataSource}
           renderRow={(item) => { return this.renderRow(item) }}
-          renderSeparator={this.renderSeparator}
-          enableEmptySections={true}/>
+          enableEmptySections={true}
+          contentInset={{bottom:10}}/>
       </View>
     );
   }
@@ -83,17 +109,51 @@ class myEvents extends Component {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      justifyContent: 'flex-start',
-      backgroundColor: '#DFD6CC'
+      backgroundColor: '#eee'
     },
     eventRow: {
-      flex: 1,
+      backgroundColor: '#fff',
       flexDirection: "row",
-      justifyContent: "flex-start",
-      height: 70
+      width: width-27,
+      height: 100,
+      marginTop: 5,
+      borderColor:'#3498db',
+      borderWidth:1,
+      padding:5,
+      overflow: 'hidden',
+    },
+    box: {
+      flexDirection: "row",
+      height: 92,
     },
     text: {
-      flex: 1
+      width: width-75,
+      paddingRight:10,
+      height: 90,
+      overflow: 'hidden',
+    },
+    img: {
+      paddingLeft:15,
+      paddingRight:25,
+      backgroundColor: '#fff',
+      justifyContent: 'center'
+    },
+    titleRow: {
+      marginTop:5,
+      marginBottom:5,
+      fontWeight:'bold',
+      color:'#000',
+      textAlign:'left',
+    },
+    start: {
+      color:'#ccc',
+      fontSize:11
+    },
+    time: {
+      color:'#000',
+      fontSize:11,
+      textAlign:'left',
+      paddingTop:10,
     }
 });
 

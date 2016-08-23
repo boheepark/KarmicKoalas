@@ -7,9 +7,7 @@ import MapComponent from './Map.js'
 import searchRoutes from './searchRoutes'
 import createRoute from './createRoute'
 import myEvents from './myEvents'
-import permissions from 'react-native-permissions'
-
-import Contacts from 'react-native-contacts';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 if (window.navigator && Object.keys(window.navigator).length == 0) {
   window = Object.assign(window, { navigator: { userAgent: 'ReactNative' }});
@@ -35,6 +33,20 @@ class Main extends Component {
     this.socket = io('https://wegotoo.herokuapp.com',  {jsonp: false, transports:['websocket'], allowUpgrades:true});
     this.state = {
       routeCoordinates: [],
+      start: {
+        longitudeDelta: 0.2574920897512953,
+        latitude: 40.72530277772641,
+        longitude: -73.92195948302341,
+        latitudeDelta: 0.3286146645283381
+      },
+      pinStart: {
+        latitude: 0,
+        longitude: 0
+      },
+      pinEnd: {
+        latitude: 0,
+        longitude: 0
+      },
       userId: this.props.userId,
       username: this.props.username,
       eventId: '1',//eventId: props.eventId,   //this will come from group list view and pass to server
@@ -56,7 +68,11 @@ class Main extends Component {
   navToSearchRoutes(){
     this.props.navigator.push({
       component: searchRoutes,
-      title: "Search Routes"
+      title: "Search Routes",
+      passProps: {
+        userId: this.props.userId,
+        setEventId: this.setEventId
+      }
     });
   }
 
@@ -82,6 +98,12 @@ class Main extends Component {
       }
     });
   }
+  onRegionChangeComplete(e) {
+    console.log(e);
+    this.setState({
+        start: e
+     })
+  }
 
   initializesEvent(eventId){
     //console.log('Connected to Main', eventId, this.state.userId, this.state.username)
@@ -89,12 +111,31 @@ class Main extends Component {
     this.socket.emit('initialize',{eventId: eventId})
   }
   playEvent(eventId){
+    //this.setState({ points: [] });
     console.log('Event ID', eventId);
-     fetch("http://localhost:8000/getRouteById", {method: "POST", headers: {'Content-Type': 'application/json'} ,body: JSON.stringify({event_id: eventId})})
+     fetch("https://wegotoo.herokuapp.com/getRouteById", {method: "POST", headers: {'Content-Type': 'application/json'} ,body: JSON.stringify({event_id: eventId})})
      .then((response) => response.json())
      .then((responseData) => {
-       console.log('SERVER', responseData);
-       this.setState({routeCoordinates: JSON.parse(responseData.route_object)});
+
+       //console.log('SERVER', JSON.parse(responseData.start));
+       var parseStart = JSON.parse(responseData.start);
+       var parseEnd = JSON.parse(responseData.end);
+      // parseStart['title'] = 'start';
+      // console.log('start object',parseStart );
+      // var pointsArr = this.state.points.push(parseStart)
+       var newStart = {
+         latitude: parseStart.latitude,
+         longitude: parseStart.longitude,
+         latitudeDelta: 0.008471502763114813,
+         longitudeDelta: 0.010554364489337331
+       }
+       this.setState({
+         routeCoordinates: JSON.parse(responseData.route_object),
+         start: newStart,
+         pinStart: { latitude: parseStart.latitude, longitude: parseStart.longitude},
+         pinEnd: { latitude: parseEnd.latitude, longitude: parseEnd.longitude}
+       });
+      // console.log('New Start',this.state.start)
        this.initializesEvent(eventId);
      })
      .done();
@@ -116,22 +157,22 @@ class Main extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <MapComponent socket={this.state.socket} eventId={this.state.eventId} username={this.state.username} initializesEvent={this.initializesEvent} routeCoordinates={this.state.routeCoordinates}/>
-        <Chat socket={this.socket} eventId={this.state.eventId}/>
+        <MapComponent informParent={(e)=>this.setState({start: e })} pinStart={this.state.pinStart} pinEnd={this.state.pinEnd} socket={this.state.socket} eventId={this.state.eventId} username={this.state.username} initializesEvent={this.initializesEvent} routeCoordinates={this.state.routeCoordinates} start={this.state.start}/>
+        <Chat socket={this.socket} eventId={this.state.eventId} username={this.props.username}/>
         <TouchableHighlight
           style={styles.searchRoutesBtn}
           onPress={() => this.navToSearchRoutes()}>
-          <Text>Search</Text>
+          <Text><Icon name="search" size={25} color="#3498db" /></Text>
         </TouchableHighlight>
         <TouchableHighlight
           style={styles.eventsBtn}
           onPress={() => this.navToMyEvents()}>
-          <Text>Events</Text>
+          <Text><Icon name="calendar" size={25} color="#3498db" /></Text>
         </TouchableHighlight>
         <TouchableHighlight
           style={styles.createRouteBtn}
           onPress={() => this.navToCreateRoute()}>
-          <Text>Create Route</Text>
+          <Text><Icon name="map" size={25} color="#3498db" /></Text>
         </TouchableHighlight>
         <Text style={styles.welcome}>
         </Text>
@@ -154,41 +195,48 @@ class Main extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
   },
   searchRoutesBtn: {
     flex: 1,
-    bottom:0,
+    bottom:20,
+    left:20,
+    width:50,
+    height:50,
     position: 'absolute',
     backgroundColor: '#fff',
-    paddingHorizontal: 10,
-    paddingVertical: 12,
-    borderRadius: 20,
-    bottom: 15
+    borderColor: "#3498db",
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 11,
+    borderRadius: 50
   },
   eventsBtn: {
     flex: 1,
-    bottom: 0,
-    left: 75,
+    bottom: 20,
+    left: 170,
+    width:50,
+    height:50,
     position: 'absolute',
     backgroundColor: '#fff',
-    paddingHorizontal: 10,
-    paddingVertical: 12,
-    borderRadius: 20,
-    bottom: 15
+    borderColor: "#3498db",
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 11,
+    borderRadius: 50
   },
   createRouteBtn: {
-    flex: 1,
-    bottom: 0,
-    left: 150,
+    bottom: 20,
+    right: 20,
+    width:50,
+    height:50,
     position: 'absolute',
     backgroundColor: '#fff',
-    paddingHorizontal: 10,
-    paddingVertical: 12,
-    borderRadius: 20,
-    bottom: 15
+    borderColor: "#3498db",
+    borderWidth: 1,
+    paddingHorizontal: 11,
+    paddingVertical: 11,
+    borderRadius: 50
   }
 });
 
