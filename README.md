@@ -75,7 +75,6 @@ We are a team of 4 full-stack software engineers. If you have any questions, ple
 
 [Alexius Hale-Dubuque](https://www.linkedin.com/in/alexiushaledubuque) | [Github](https://github.com/alexiushaledubuque)
 
-[Bohee Park](https://www.linkedin.com/in/bohee-park-681126122) | [Github](https://github.com/boheepark)
 
 
 ## Special Thanks
